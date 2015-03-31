@@ -36,6 +36,9 @@ public:
     void fenpai();
     void randDZ();
     
+    virtual void onEnter();
+    virtual void onExit();
+    
 private:
     int                        m_deskPokes[CARD_TOTAL] = {0};
     vector<int>                m_personPokes[PLAYER_NUM];

@@ -15,6 +15,7 @@ Card::Card()
 ,m_cardBg(NULL)
 ,m_isSelected(false)
 ,m_isMoved(false)
+,m_playerId(0)
 {
     
 }
@@ -39,10 +40,10 @@ Card* Card::create(int cardId)
     return pRect;
 }
 
-Card* Card::create(CardData *cardData)
+Card* Card::create(CardData *cardData, int playerId)
 {
     Card* pRect = new Card();
-    if (pRect && pRect->init(cardData->cardId)) {
+    if (pRect && pRect->init(cardData->cardId, playerId)) {
         pRect->autorelease();
         
         return pRect;
@@ -54,27 +55,35 @@ Card* Card::create(CardData *cardData)
     return pRect;
 }
 
+bool Card::init(int cardId, int playerId)
+{
+    m_playerId = playerId;
+    
+    return init(cardId);
+}
+
 bool Card::init(int cardId)
 {
-    m_cardBg = Sprite::create("bg/newbg_cardFront.png");
-    this->addChild(m_cardBg);
+    if (m_playerId == 1){
+        m_cardBg = Sprite::create("bg/newbg_cardFront.png");
+        this->addChild(m_cardBg);
+        m_cardBg->setAnchorPoint(Point::ZERO);
     
-    this->m_cardId = cardId;
+        this->m_cardId = cardId;
     
-    if (this->m_cardId == 52) {
-        this->m_cardValue = 16;
-    }
-    else if (this->m_cardId == 53)
-    {
-        this->m_cardValue = 17;
-    }
-    else
-    {
-        this->m_cardValue = this->m_cardId % 13 +3;
-        this->m_cardType = floor(this->m_cardId / 13) +1;
-    }
+        if (this->m_cardId == 52) {
+            this->m_cardValue = 16;
+        }
+        else if (this->m_cardId == 53)
+        {
+            this->m_cardValue = 17;
+        }
+        else
+        {
+            this->m_cardValue = this->m_cardId % 13 +3;
+            this->m_cardType = floor(this->m_cardId / 13) +1;
+        }
     
-    if (true){
         char cardV[100];
         sprintf(cardV, "shape/newshape_b%d.png",this->m_cardValue);
         Sprite* value = Sprite::create(cardV);
@@ -92,20 +101,23 @@ bool Card::init(int cardId)
             cardType->setPosition(20,m_cardBg->getBoundingBox().size.height-cardType->getBoundingBox().size.height-34);
         }
         
+        auto listener = EventListenerTouchOneByOne::create();
+        listener->onTouchBegan = std::bind(&Card::onTouchBegin, this, std::placeholders::_1, std::placeholders::_2);
+        listener->onTouchMoved = std::bind(&Card::onTouchMove, this, std::placeholders::_1, std::placeholders::_2);
+        listener->onTouchEnded = std::bind(&Card::onTouchEnd, this, std::placeholders::_1, std::placeholders::_2);
+        listener->onTouchCancelled = std::bind(&Card::onTouchCancel,this, std::placeholders::_1, std::placeholders::_2);
+        listener->setSwallowTouches(true);
+        
+        _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
+        
     }
-   
-    
+    else
+    {
+        m_cardBg = Sprite::create("bg/newbg_cardBg2.png");
+        this->addChild(m_cardBg);
+        m_cardBg->setAnchorPoint(Point::ZERO);
+    }
     this->setContentSize(m_cardBg->getContentSize());
-    
-    auto listener = EventListenerTouchOneByOne::create();
-    listener->onTouchBegan = std::bind(&Card::onTouchBegin, this, std::placeholders::_1, std::placeholders::_2);
-    listener->onTouchMoved = std::bind(&Card::onTouchMove, this, std::placeholders::_1, std::placeholders::_2);
-    listener->onTouchEnded = std::bind(&Card::onTouchEnd, this, std::placeholders::_1, std::placeholders::_2);
-    listener->onTouchCancelled = std::bind(&Card::onTouchCancel,this, std::placeholders::_1, std::placeholders::_2);
-    listener->setSwallowTouches(true);
-    
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
-    
     return true;
 }
 
