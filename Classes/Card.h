@@ -52,9 +52,8 @@ public:
     
     static Card* create(int cardId);
     
-    static Card* create(CardData* cardData, int playerId);
+    static Card* create(CardData* cardData);
     
-    virtual bool init(int cardId, int playerId);
     virtual bool init(int cardId);
     
     virtual bool onTouchBegin(Touch* touch, Event* event);
@@ -69,7 +68,6 @@ private:
     int                 m_cardId;
     bool                m_isMoved;
     bool                m_isSelected;
-    int                 m_playerId;
 };
 
 #endif /* defined(__MyCppGame__Card__) */
